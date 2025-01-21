@@ -20,86 +20,7 @@ export async function POST(req) {
 }
 
 
-
-
-// export async function GET(req) {
-//   try {
-//     const { searchParams } = new URL(req.url);
-//     const query = searchParams.get("query");
-
-//     if (!query) {
-//       return new Response(
-//         JSON.stringify({ error: "Query parameter is required" }),
-//         { status: 400 }
-//       );
-//     }
-
-//     // Determine if the query is for email or name
-//     const searchCriteria = query.includes("@")
-//       ? { email: query }
-//       : { name: query };
-
-//     // Connect to MongoDB
-//     await connectMongoDB();
-
-//     // Search for users with the specified name or email
-//     const users = await User.find(searchCriteria);
-
-//     // Return matching users
-//     return new Response(JSON.stringify(users), { status: 200 });
-//   } catch (error) {
-//     console.error("Error searching database:", error);
-//     return new Response(
-//       JSON.stringify({ error: "Internal Server Error" }),
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
-
-// export async function GET(req) {
-//   try {
-//     const { searchParams } = new URL(req.url);
-//     const query = searchParams.get("query");
-
-//     if (!query) {
-//       return new Response(
-//         JSON.stringify({ error: "Query parameter is required" }),
-//         { status: 400 }
-//       );
-//     }
-
-//     // Determine if the query is for email or name
-//     const searchCriteria = query.includes("@")
-//       ? { email: query }
-//       : { name: { $regex: new RegExp(`^${query}`, "i") } }; // Case-insensitive regex for name
-
-//     // Connect to MongoDB
-//     await connectMongoDB();
-
-//     // Search for users with the specified name or email
-//     const users = await User.find(searchCriteria);
-
-//     // Return matching users
-//     return new Response(JSON.stringify(users), { status: 200 });
-//   } catch (error) {
-//     console.error("Error searching database:", error);
-//     return new Response(
-//       JSON.stringify({ error: "Internal Server Error" }),
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-
-
-
 // for date email and name search
-
-
 
 
 export async function GET(req) {
@@ -162,7 +83,7 @@ export async function GET(req) {
 
 
 
-//for pagination get logic
+//for pagination get logic along with other props
 
 // export async function GET(req) {
 //   try {
