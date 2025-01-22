@@ -20,13 +20,13 @@ export async function POST(req) {
 }
 
 
-// for date email and name search
-
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query");
+    const page = parseInt(searchParams.get("page"), 10) || 1; // Default to page 1
+    const limit = parseInt(searchParams.get("limit"), 10) || 10; // Default to 10 items per page
 
     if (!query) {
       return new Response(
@@ -43,7 +43,10 @@ export async function GET(req) {
     } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(query)) {
       // Date search in dd/mm/yyyy format
       const [day, month, year] = query.split("/");
-      const startDate = new Date(`${year}-${month}-${day}`);
+
+      // Ensure the date is formatted correctly to yyyy-mm-dd
+      const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      const startDate = new Date(formattedDate);
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 1); // Add one day to include the entire day
 
@@ -61,11 +64,31 @@ export async function GET(req) {
     // Connect to MongoDB
     await connectMongoDB();
 
-    // Search for users with the specified criteria
-    const users = await User.find(searchCriteria);
+    // Calculate the skip value for pagination
+    const skip = (page - 1) * limit;
 
-    // Return matching users
-    return new Response(JSON.stringify(users), { status: 200 });
+    // Search for users with the specified criteria and apply pagination
+    const users = await User.find(searchCriteria)
+      .skip(skip)
+      .limit(limit);
+
+    // Get the total count of matching users for pagination metadata
+    const totalUsers = await User.countDocuments(searchCriteria);
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Return matching users along with pagination metadata
+    return new Response(
+      JSON.stringify({
+        users,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalUsers,
+          limit,
+        },
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error searching database:", error);
     return new Response(
@@ -74,57 +97,3 @@ export async function GET(req) {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-//for pagination get logic along with other props
-
-// export async function GET(req) {
-//   try {
-//     const { searchParams } = new URL(req.url);
-
-//     const query = searchParams.get("query") || ""; // Get the search query
-//     const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-//     const limit = parseInt(searchParams.get("limit") || "10", 10); // Items per page
-
-//     // Determine if the query is for email or name
-//     const searchCriteria = query.includes("@")
-//       ? { email: query }
-//       : query
-//       ? { name: { $regex: query, $options: "i" } } // Case-insensitive search for names
-//       : {};
-
-//     // Connect to MongoDB
-//     await connectMongoDB();
-
-//     // Get the total count of matching documents
-//     const totalCount = await User.countDocuments(searchCriteria);
-
-//     // Fetch paginated results
-//     const users = await User.find(searchCriteria)
-//       .skip((page - 1) * limit) // Skip documents for previous pages
-//       .limit(limit); // Limit the number of documents fetched
-
-//     // Return users with pagination details
-//     return new Response(
-//       JSON.stringify({
-//         users,
-//         totalPages: Math.ceil(totalCount / limit),
-//         currentPage: page,
-//       }),
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error("Error searching database:", error);
-//     return new Response(
-//       JSON.stringify({ error: "Internal Server Error" }),
-//       { status: 500 }
-//     );
-//   }
-// }
