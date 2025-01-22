@@ -29,10 +29,12 @@ export default function FormData() {
   
         if (res.ok) {
           const form = e.target;
+          window.alert("credentials added to database");
           form.reset();
           router.push("/");
         } else {
           console.log("User credential login failed.");
+          window.alert("error occurred while adding credentials");
         }
       } catch (error) {
         console.log("Error during registration: ", error);
